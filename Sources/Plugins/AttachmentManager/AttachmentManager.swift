@@ -202,7 +202,7 @@ extension AttachmentManager: UICollectionViewDataSource, UICollectionViewDelegat
                     cell.attachment = attachment
                     cell.indexPath = indexPath
                     cell.manager = self
-                    cell.imageView.image = UIImage(data: attach.uncompressedFile)
+                    cell.imageView.image = UIImage(data: attach.pickedFile)
                     cell.deleteButton.backgroundColor = tintColor
 
                     return cell
