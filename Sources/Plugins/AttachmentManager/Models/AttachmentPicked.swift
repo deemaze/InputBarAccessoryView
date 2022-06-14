@@ -14,7 +14,7 @@ open class AttachmentPicked {
     open var fileSize: Int!
     open var mimeType: String!
     open var blob: String!
-    open var uncompressedFile: Data!
+    open var pickedFile: Data!
 
     public init() {}
 }
