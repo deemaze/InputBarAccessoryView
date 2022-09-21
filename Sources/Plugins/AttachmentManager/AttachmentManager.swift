@@ -55,7 +55,7 @@ open class AttachmentManager: NSObject, InputPlugin {
     }()
     
     /// The attachments that the managers holds
-    private(set) public var attachments = [Attachment]() { didSet { reloadData() } }
+    public var attachments = [Attachment]() { didSet { reloadData() } }
     
     /// A flag you can use to determine if you want the manager to be always visible
     open var isPersistent = false { didSet { attachmentView.reloadData() } }
