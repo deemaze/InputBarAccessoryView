@@ -156,6 +156,10 @@ extension AttachmentManager: UICollectionViewDataSource, UICollectionViewDelegat
         if indexPath.row == attachments.count {
             delegate?.attachmentManager(self, didSelectAddAttachmentAt: indexPath.row)
             delegate?.attachmentManager(self, shouldBecomeVisible: attachments.count > 0 || isPersistent)
+        } else {            
+            let attachment = attachments[indexPath.row]
+            delegate?.attachmentManager(self, didSelectAttachment: attachment)
+            
         }
     }
     
