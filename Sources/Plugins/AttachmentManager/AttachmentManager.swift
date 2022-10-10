@@ -33,6 +33,7 @@ open class AttachmentManager: NSObject, InputPlugin {
         case image(UIImage)
         case url(URL)
         case data(Data)
+        case attachment(AttachmentPicked)
         
         @available(*, deprecated, message: ".other(AnyObject) has been depricated as of 2.0.0")
         case other(AnyObject)
@@ -54,7 +55,7 @@ open class AttachmentManager: NSObject, InputPlugin {
     }()
     
     /// The attachments that the managers holds
-    private(set) public var attachments = [Attachment]() { didSet { reloadData() } }
+    open var attachments = [Attachment]() { didSet { reloadData() } }
     
     /// A flag you can use to determine if you want the manager to be always visible
     open var isPersistent = false { didSet { attachmentView.reloadData() } }
@@ -102,6 +103,8 @@ open class AttachmentManager: NSObject, InputPlugin {
             attachment = .url(url)
         } else if let data = object as? Data {
             attachment = .data(data)
+        } else if let attachmentPicked = object as? AttachmentPicked {
+            attachment = .attachment(attachmentPicked)
         } else {
             return false
         }
@@ -153,6 +156,9 @@ extension AttachmentManager: UICollectionViewDataSource, UICollectionViewDelegat
         if indexPath.row == attachments.count {
             delegate?.attachmentManager(self, didSelectAddAttachmentAt: indexPath.row)
             delegate?.attachmentManager(self, shouldBecomeVisible: attachments.count > 0 || isPersistent)
+        } else {
+            let attachment = attachments[indexPath.row]
+            delegate?.attachmentManager(self, didSelectAttachment: attachment)
         }
     }
     
@@ -191,6 +197,31 @@ extension AttachmentManager: UICollectionViewDataSource, UICollectionViewDelegat
                 cell.imageView.tintColor = tintColor
                 cell.deleteButton.backgroundColor = tintColor
                 return cell
+            case .attachment(let attach):
+                if attach.fileType == "IMAGE" {
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImageAttachmentCell.reuseIdentifier, for: indexPath) as? ImageAttachmentCell else {
+                        fatalError()
+                    }
+                    cell.attachment = attachment
+                    cell.indexPath = indexPath
+                    cell.manager = self
+                    cell.imageView.image = UIImage(data: attach.pickedFile)
+                    cell.deleteButton.backgroundColor = tintColor
+
+                    return cell
+                } else {
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CustomAttachmentCell.reuseIdentifier, for: indexPath) as? CustomAttachmentCell else {
+                        fatalError()
+                    }
+                    cell.attachment = attachment
+                    cell.indexPath = indexPath
+                    cell.manager = self
+                    cell.attachmentLabel.text = attach.fileName
+                    cell.deleteButton.backgroundColor = tintColor
+
+                    return cell
+                }
+
             default:
                 return collectionView.dequeueReusableCell(withReuseIdentifier: AttachmentCell.reuseIdentifier, for: indexPath) as! AttachmentCell
             }
