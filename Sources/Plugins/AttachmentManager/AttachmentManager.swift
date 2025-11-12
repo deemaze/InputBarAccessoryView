@@ -174,60 +174,56 @@ extension AttachmentManager: UICollectionViewDataSource, UICollectionViewDelegat
     }
     
     final public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
+
         if indexPath.row == attachments.count && showAddAttachmentCell {
             return createAttachmentCell(in: collectionView, at: indexPath)
         }
-        
+
         let attachment = attachments[indexPath.row]
-        
+
         if let cell = dataSource?.attachmentManager(self, cellFor: attachment, at: indexPath.row) {
             return cell
         } else {
-            
+
             // Only images are supported by default
             switch attachment {
             case .image(let image):
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImageAttachmentCell.reuseIdentifier, for: indexPath) as? ImageAttachmentCell else {
                     fatalError()
                 }
-                cell.attachment = attachment
-                cell.indexPath = indexPath
-                cell.manager = self
+                configureAttachmentCell(cell, with: attachment, at: indexPath)
                 cell.imageView.image = image
                 cell.imageView.tintColor = tintColor
-                cell.deleteButton.backgroundColor = tintColor
                 return cell
             case .attachment(let attach):
                 if attach.fileType == "IMAGE" {
                     guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImageAttachmentCell.reuseIdentifier, for: indexPath) as? ImageAttachmentCell else {
                         fatalError()
                     }
-                    cell.attachment = attachment
-                    cell.indexPath = indexPath
-                    cell.manager = self
+                    configureAttachmentCell(cell, with: attachment, at: indexPath)
                     cell.imageView.image = UIImage(data: attach.pickedFile)
-                    cell.deleteButton.backgroundColor = tintColor
-
+                    cell.imageView.tintColor = tintColor
                     return cell
                 } else {
                     guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CustomAttachmentCell.reuseIdentifier, for: indexPath) as? CustomAttachmentCell else {
                         fatalError()
                     }
-                    cell.attachment = attachment
-                    cell.indexPath = indexPath
-                    cell.manager = self
+                    configureAttachmentCell(cell, with: attachment, at: indexPath)
                     cell.attachmentLabel.text = attach.fileName
-                    cell.deleteButton.backgroundColor = tintColor
-
                     return cell
                 }
 
             default:
                 return collectionView.dequeueReusableCell(withReuseIdentifier: AttachmentCell.reuseIdentifier, for: indexPath) as! AttachmentCell
             }
-            
         }
+    }
+
+    private func configureAttachmentCell(_ cell: AttachmentCell, with attachment: Attachment, at indexPath: IndexPath) {
+        cell.attachment = attachment
+        cell.indexPath = indexPath
+        cell.manager = self
+        cell.deleteButton.backgroundColor = tintColor
     }
     
     // MARK: - UICollectionViewDelegateFlowLayout
